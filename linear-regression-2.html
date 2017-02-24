@@ -7,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
-        <title>Linear Regression</title>
+        <title>Linear Regression, Part 2</title>
 
         <!-- Bootstrap Core CSS -->
         <link href="https://jmpounders.github.io/theme/css/bootstrap.min.css" rel="stylesheet">
@@ -35,30 +35,31 @@
 
 
 
-        <meta name="description" content="A first pass over linear regression.">
+        <meta name="description" content="Linear regression from a vector space perspective.">
 
         <meta name="author" content="Justin Pounders">
 
         <meta name="tags" content="regression">
+        <meta name="tags" content="linear algebra">
 
 	                <meta property="og:locale" content="">
 		<meta property="og:site_name" content="Justin Pounders PhD">
 
 	<meta property="og:type" content="article">
             <meta property="article:author" content="https://jmpounders.github.io/author/justin-pounders.html">
-	<meta property="og:url" content="https://jmpounders.github.io/linear-regression-1.html">
-	<meta property="og:title" content="Linear Regression">
-	<meta property="article:published_time" content="2017-02-10 00:00:00-05:00">
-            <meta property="og:description" content="A first pass over linear regression.">
+	<meta property="og:url" content="https://jmpounders.github.io/linear-regression-2.html">
+	<meta property="og:title" content="Linear Regression, Part 2">
+	<meta property="article:published_time" content="2017-02-19 00:00:00-05:00">
+            <meta property="og:description" content="Linear regression from a vector space perspective.">
 
             <meta property="og:image" content="https://jmpounders.github.io//images/wood-texture.jpg">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:site" content="@justin_pounders">
-        <meta name="twitter:title" content="Linear Regression">
+        <meta name="twitter:title" content="Linear Regression, Part 2">
 
             <meta name="twitter:image" content="https://jmpounders.github.io//images/wood-texture.jpg">
 
-            <meta name="twitter:description" content="A first pass over linear regression.">
+            <meta name="twitter:description" content="Linear regression from a vector space perspective.">
 </head>
 
 <body>
@@ -103,12 +104,12 @@
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="post-heading">
-                        <h1>Linear Regression</h1>
+                        <h1>Linear Regression, Part 2</h1>
                         <span class="meta">Posted by
                                 <a href="https://jmpounders.github.io/author/justin-pounders.html">Justin Pounders</a>
-                             on Fri 10 February 2017
+                             on Sun 19 February 2017
                         </span>
-                            <span class="meta">Updated on Fri 17 February 2017</span>
+                            <span class="meta">Updated on Thu 23 February 2017</span>
                         
                     </div>
                 </div>
@@ -122,68 +123,90 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
     <!-- Post Content -->
     <article>
-        <p>Linear regression is one of the most common machine learning algorithms.  Simply put, it is just curve fitting.  There are a number of ways to approach linear regression, however, and each approach tends to connect with a different branch of mathematics.  I will explore the different faces and extensions of linear regression on this blog over the next few weeks.</p>
-<p>In this post, I will introduce the basic problem of linear regression and a solution based in optimization.</p>
-<div class="section" id="the-regression-problem">
-<h2>The Regression Problem</h2>
-<p>Say that you have continuous, real-valued output or observation, <span class="math">\(y\)</span>, that you would like to predict given some set of input variables <span class="math">\(x_j\)</span> for <span class="math">\(j=1,2,...,J\)</span>. If the <span class="math">\(x_j\)</span> input are also continuous and real-valued then we have a <em>regression problem</em>.</p>
-<p>The regression problem really amounts to assuming that there is some implicit function that maps an input vector <span class="math">\(\vec{x}\)</span> to an output <span class="math">\(y\)</span>, then trying to determine that function by observing sample vectors from the input space. Let's call that &quot;true&quot; function <span class="math">\(f(\vec{x})\)</span>, where <span class="math">\(f : \mathbb{R}^J \rightarrow \mathbb{R}\)</span>.</p>
+        <p>In what follows I will build up the linear algebraic formalism for linear regression.  Sound boring?  I actually found that working through the mathematics of regression in terms of vector spaces revealed a new way of thinking about prediction error.</p>
+<p>The end result of this post will be the set of &quot;normal equations&quot; that provide the least-squares solution to linear regression.  This solution is equivalent to the optimization-based approach from <a class="reference external" href="https://jmpounders.github.io/linear-regression-1.html">this post</a>  The approach I take to building up the normal equations draws heavily on the ideas of vector spaces.</p>
+<p>So let's start with a <em>brief</em> review of vector spaces.</p>
+<div class="section" id="vector-spaces">
+<h2>Vector Spaces</h2>
+<p>For the purposes of the discussion here, a vector is simply a list of numbers.  Let's also assume that the numbers populating a vector are <em>real</em> numbers.  An example of such a vector would be the <span class="math">\((x,y,z)\)</span> location of a point in three-dimensional space, or the latitude-longitude coordinates of someplace on a two-dimensional plane.  In both cases we can talk about a <em>single</em> vector describing a <em>single</em> location, but we should also realize that there <em>infinitely</em> many different locations that are possible.  When we consider the set of all <em>possible</em> vectors then we abstracting up to the notion of a <em>vector space</em>.</p>
+<p>Put simply, a vector space is where vectors live.  If a vector contains <span class="math">\(N\)</span> numbers then we say that it lives in the <span class="math">\(N\)</span>-dimensional space <span class="math">\(\mathbb{R}^N\)</span>. There are several properties that a vector space must satisfy for it to be a true vector space.  I won't enumerate these properties, but they essentially make sure that that addition and (scalar) multiplication don't take you out of the vector space.</p>
+<p>One of the important concepts from vector spaces I will use is the concept of <em>span</em>.  If you think of a vector as a direction in space, then the span of a set of vectors would be all the locations in space you can reach by addining, stretching and shrinking among that set of vectors.  Using spans makes it easy to talk about <em>subspaces</em>.  You and I live three-dimensional space.  This space, for example, is spanned by the direction vectors up/down, left/right, and front/back.  But if we can can only move along the two-dimensional surface of the ground, then we are confined to a subspace that is spanned by two vectors that are in the plane of the surface (left/right, front/back).  Think about walking vs. flying.</p>
+<img alt="A 2D subspace in a 3D space." class="align-right" src="https://jmpounders.github.io/images/3d2d.png" style="height: 400px;" />
+<p>Lastly, it's common to define inner products on vector spaces.  An inner product is normally constructed to reveal how much of one vector is pointing in another vector's direction.  (A &quot;dot&quot; product is an example of an inner product.)  Specifically, the <em>scalar projection</em> of one vector onto another, defined by an inner product, reveals the length of the former if it is collapsed onto the latter.</p>
+<img alt="Projection of one vector onto another.  Scalar projection shown in red." class="align-center" src="https://jmpounders.github.io/images/projection.png" />
 </div>
-<div class="section" id="id1">
-<h2>Linear Regression</h2>
-<p>The goal of regression is to generate a <em>hypothesis</em> function, <span class="math">\(h_\theta(\vec{x})\)</span>, that approximates the true function <span class="math">\(f(\vec{x})\)</span>.  With <em>linear</em> regression, we assume that the output variable, <span class="math">\(y\)</span>, can be written as a linear combination of the input data, <span class="math">\(x_j\)</span> (<span class="math">\(j=1,2,...,J\)</span>). This assumption of linearity defines the hypothesis function as</p>
+<div class="section" id="regression-vectors">
+<h2>Regression Vectors</h2>
+<p>When we consider a numerical data set (as in linear regression), we normally are referring to a set of vector observations, say <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{(x)}^{(N)}\)</span>.  Each of these vectors records the the encoding of features for a single observation.  If we have <span class="math">\(J\)</span> features, then each of these observation vectors will have length <span class="math">\(J\)</span>.</p>
+<p>A linear regression model assigns a weight, <span class="math">\(\theta_j\)</span>, to each feature represented in an observation vector.  The model will predict an output value, <span class="math">\(y\)</span>, as the weighted sum of all the features for a given observation.  We can denote this weighted sum using angle brackets so that</p>
 <div class="math">
 \begin{equation*}
-h_\theta(\vec{x}) = \theta_0 + \sum_{j=1}^J \theta_j x_j,
+y = \left&lt; \vec{x}, \vec{\theta} \right&gt; = \sum_{j=1}^J x_j \theta_j.
 \end{equation*}
 </div>
-<p>where <span class="math">\(\theta_j\)</span> are the coefficients of the linear combination. The <span class="math">\(\theta_0\)</span> parameter is often called the <em>bias term</em>.</p>
-<div class="section" id="identifying-the-best-hypothesis">
-<h3>Identifying the &quot;Best&quot; Hypothesis</h3>
-<p>We want we want the hypothesis function to be a good approximation of the true function: <span class="math">\(h_\theta(\vec{x}) \approx f(\vec{x})\)</span>.  How do we determine what a &quot;good&quot; approximation is?  To start, let's assume that we observe <span class="math">\(N\)</span> sample vectors, <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>, and their corresponding outputs, <span class="math">\(y^{(1)}, y^{(2)}, ..., y^{(N)}\)</span>. To be
-clear, let's define</p>
+<p>Both <span class="math">\(\vec{x}\)</span> and <span class="math">\(\vec{\theta}\)</span> are <span class="math">\(J\)</span>-dimensional and live in the vector space <span class="math">\(\mathbb{R}^J\)</span>.  The weighted sum shown above is an inner product defined on that vector space.  We can therefore say that the value <span class="math">\(y\)</span> in the prediction model is equal to the <em>scalar projection</em> of the weight vector onto the observation vector.  Training a regression model therefore amounts to finding a weight vector, <span class="math">\(\vec{\theta}\)</span>, such that the projection of that vector onto an observation is approximately equal to the observed output.</p>
+<p>Thus our training objective is to have</p>
+<div class="math">
+\begin{equation*}
+y^{(i)} \approx \left&lt; \vec{x}^{(i)}, \vec{\theta} \right&gt;
+\end{equation*}
+</div>
+<p>for <span class="math">\(i=,1,2,...,N\)</span>.</p>
+<p>At this point we can stack all of these approximations into one equation,</p>
+<div class="math">
+\begin{equation*}
+\vec{y}_\text{obs} \approx \vec{y}_\text{pred} = \mathbf{X} \vec{\theta}
+\end{equation*}
+</div>
+<p>where</p>
 <ul class="simple">
-<li><span class="math">\(x_j^{(i)}\)</span> as feature <span class="math">\(j\)</span> from sample <span class="math">\(i\)</span> and</li>
-<li><span class="math">\(\vec{x}^{(n)}\)</span> as the vector of all features from sample <span class="math">\(n\)</span>.</li>
+<li><span class="math">\(\vec{y}_\text{obs}\)</span> is the vector of observed output values (i.e., target values),</li>
+<li><span class="math">\(\vec{y}_\text{pred}\)</span> is the vector of predictions and</li>
+<li><span class="math">\(\mathbf{X}\)</span> is a matrix whose rows are the observation vectors, <span class="math">\(\vec{x}^{(i)}\)</span>.</li>
 </ul>
-<p>For each observed input <span class="math">\(\vec{x}^{(n)}\)</span> we know that <span class="math">\(f(\vec{x}^{(n)}) = y^{(n)}\)</span>, so we can say that we want <span class="math">\(h_\theta(\vec{x}^{(n)}) - y^{(n)} \approx 0\)</span>.</p>
-<p>To quantify this intuition, let's define an <em>error function</em>:</p>
+</div>
+<div class="section" id="training-the-regressor">
+<h2>Training the Regressor</h2>
+<div class="section" id="interpolation">
+<h3>Interpolation</h3>
+<p>The problem at this point is how to determine the weight vector <span class="math">\(\vec{\theta}\)</span>.  Let's consider this problem from a linear algebraic perspective.  If we write our training objective as a true equation (rather than an approximation) we would want to solve the linear problem</p>
 <div class="math">
 \begin{equation*}
-\text{error}_\theta(\vec{x} | y) = h_\theta(\vec{x}) - y.
+\mathbf{X}\vec{\theta} = \vec{y}_\text{obs}`
 \end{equation*}
 </div>
-<p>A measure of the total error associated with hypothesis <span class="math">\(h_\theta(\vec{x})\)</span> given <span class="math">\(N\)</span> input/output observations could then be written</p>
+<p>for <span class="math">\(\vec{\theta}\)</span>.</p>
+<p>This problem can only be solved if the number of observations is equal to the number of feature weights, the (rough) intuition being that each observation determines one weight.  If this happens to be the case, then we can determine a unique vector of weights that will <em>exactly</em> reproduce the observed targets for all training observations.  (This is called <em>interpolation</em>.)  It is rare, however, that this will actually be the case, since we typically have many more observations than features.  Moreover, we will typically not <em>want</em> this to be the case because it is likely that a weight vector found in this manner will not generalize well to observations outside of the training set.</p>
+</div>
+<div class="section" id="beyond-inerpolation">
+<h3>Beyond Inerpolation</h3>
+<p>So let's assume that we have more training observations than features.  This means that our linear system of equations is <em>overdetermined</em>, and it is impossible to find a unique weight vector that exactly reproduces our training observations.  In fact, it is impossible to find <em>any</em> weight vector in a unique way unless we simplify or relax the problem. To begin let's think about the prediction vector.</p>
+<p>The prediction vector, <span class="math">\(\vec{y}_\text{pred}\)</span>, is an <span class="math">\(N\)</span>-dimensional vector, but it actually lives in smaller <em>subspace</em> of <span class="math">\(\mathbb{R}^N\)</span>.  If we have <span class="math">\(J\)</span> features, then all prediction vectors can be written</p>
 <div class="math">
 \begin{equation*}
-J(\vec{\theta}) = \frac{1}{2N} \sum_{n=1}^N \left[ \text{error}_\theta(\vec{x}^{(n)} | y^{(n)}) \right]^2.
+\vec{y}_\text{pred} = \sum_{j=1}^J \theta_j \vec{x}_j,
 \end{equation*}
 </div>
-<p>Here we have squared the error (to avoid cancellation between positive and negative values), then averaged over all observations.  The function <span class="math">\(J(\vec{\theta})\)</span> is often called the <em>cost function</em>.</p>
-<p>Minimizing the cost function is now equivalent to minimizing the average squared-error associated with the hypothesis function.  If we view the hypothesis function as generating predictions of the output varaiable (given some input), then this process will minimize the difference between the <em>actual</em> and <em>predicted</em> output for all of the <span class="math">\(N\)</span> observations we have.</p>
-</div>
-<div class="section" id="finding-the-best-hypothesis">
-<h3>Finding the &quot;Best&quot; Hypothesis</h3>
-<p>In principal we can use any optimization algorithm to minimize <span class="math">\(J(\vec{\theta})\)</span>.  Formally we can state this goal as finding the coefficient vector <span class="math">\(\vec{\theta}^*\)</span> that minimizes the cost function:</p>
+<p>where <span class="math">\(\vec{x}_j\)</span> is column <span class="math">\(j\)</span> from <span class="math">\(\mathbf{X}\)</span>, which I will call a feature vector because it consists of all observations of a single feature.  This means that the prediction vector <span class="math">\(\vec{y}_\text{pred}\)</span> lives in a <span class="math">\(J\)</span>-dimensional subspace of <span class="math">\(\mathbb{R}^N\)</span> spanned by the <span class="math">\(J\)</span> feature vectors.  Let's call this the prediction subspace.  (This is like only being allowed in the first floor of a tall building.  There are other parts of the &quot;space&quot; that you just can't get to.)  The vector <span class="math">\(\vec{y}_\text{obs}\)</span> of observed values, on the other hand, is not restricted to the prediction subspace and can hang out anywhere in <span class="math">\(\mathbb{R}^N\)</span>.</p>
+<p>This might lead you to argue that if our predictions are restricted to this <span class="math">\(J\)</span>-dimensional prediction subspace, why don't we make our guess as good as possible <em>there</em> and not worry about the rest of the space (i.e., the other <span class="math">\(N-J\)</span> dimensions).  That's a good idea.  In fact, we can make our prediction error <span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span> <em>vanish</em> in the prediction subspace!  What this means is that any error must be completely orthogonal to every prediction vector that we could possibly construct.  We alread noted that that the prediction subspace is spanned by the <span class="math">\(\vec{x}_j\)</span> vectors.  Therefore we need <span class="math">\(\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0\)</span> for <span class="math">\(j=1,2,...,J\)</span>.  Well, this is equivalent to writing</p>
 <div class="math">
 \begin{equation*}
-\vec{\theta}^* = \text{arg min } J(\vec{\theta}).
+\mathbf{X}^T \vec{e} = \vec{0}.
 \end{equation*}
 </div>
-<p>Using <a class="reference external" href="https://en.wikipedia.org/wiki/Gradient_descent">gradient descent</a> optimization, for example, we can minimize the cost function by iteratively applying the following map:</p>
+<p>In fact, after a few substitutions this equation becomes</p>
 <div class="math">
 \begin{equation*}
-\vec{\theta}^{(i+1)} \leftarrow \vec{\theta}^{(i)} - \alpha \vec{\nabla} J(\vec{\theta}^{(i)})
+\mathbf{X}^T \mathbf{X} \vec{\theta} = \mathbf{X}^T \vec{y}_\text{obs}.
 \end{equation*}
 </div>
-<p>where <span class="math">\(\alpha\)</span> is called the learning rate.  If this iteration converges, then <span class="math">\(\vec{\theta}^{(i)} \rightarrow \vec{\theta}^*\)</span> as <span class="math">\(i \rightarrow \infty\)</span>.</p>
-<p>In the case of linear regression, the gradient vector in this expression can be formed explicitly (a convenience that is not always the case):</p>
+<p>This is called the &quot;normal equation.&quot;  We have effectively projected our entire problem down onto the <span class="math">\(J\)</span>-dimensional prediction supspace of <span class="math">\(\mathbb{R}^N\)</span>.  This means that we have a <span class="math">\(J\)</span>-dimensional unknown feature vector and <span class="math">\(J\)</span> equations constraining the error to the prediction subspace.  The result?  A uniquely solvable problem!</p>
 <div class="math">
 \begin{equation*}
-\left[ \vec{\nabla} J(\vec{\theta}) \right]_j = \frac{\partial J}{\partial \theta_j}
-                                              = \frac{1}{N} \sum_{n=1}^N \left[ h_{\theta}(\vec{x}^{(n)}) - y^{(n)} \right] x_j^{(n)}.
+\vec{\theta} = \left( \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T \vec{y}_\text{obs}.
 \end{equation*}
 </div>
+<p>Model trained.</p>
 </div>
 </div>
 <script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
@@ -246,7 +269,7 @@ J(\vec{\theta}) = \frac{1}{2N} \sum_{n=1}^N \left[ \text{error}_\theta(\vec{x}^{
     </article>
 
         <div class="tags">
-            <p>tags: <a href="https://jmpounders.github.io/tag/regression.html">regression</a></p>
+            <p>tags: <a href="https://jmpounders.github.io/tag/regression.html">regression</a>, <a href="https://jmpounders.github.io/tag/linear-algebra.html">linear algebra</a></p>
         </div>
 
     <hr>
@@ -256,8 +279,8 @@ J(\vec{\theta}) = \frac{1}{2N} \sum_{n=1}^N \left[ \text{error}_\theta(\vec{x}^{
             <div id="disqus_thread"></div>
             <script type="text/javascript">
                 var disqus_shortname = 'jmpounders-github-io';
-                var disqus_identifier = 'linear-regression-1.html';
-                var disqus_url = 'https://jmpounders.github.io/linear-regression-1.html';
+                var disqus_identifier = 'linear-regression-2.html';
+                var disqus_url = 'https://jmpounders.github.io/linear-regression-2.html';
                 (function() {
                     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
                     dsq.src = '//jmpounders-github-io.disqus.com/embed.js';
