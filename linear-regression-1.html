@@ -88,8 +88,6 @@
                 <ul class="nav navbar-nav navbar-right">
                         <li><a href="/blog/index.html">blog</a></li>
 
-                            <li><a href="https://jmpounders.github.io/pages/about.html">About</a></li>
-                            <li><a href="https://jmpounders.github.io/pages/cv.html">CV</a></li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -143,8 +141,8 @@ h_\theta(\vec{x}) = \theta_0 + \sum_{j=1}^J \theta_j x_j,
 <p>We want we want the hypothesis function to be a good approximation of the true function: <span class="math">\(h_\theta(\vec{x}) \approx f(\vec{x})\)</span>.  How do we determine what a &quot;good&quot; approximation is?  To start, let's assume that we observe <span class="math">\(N\)</span> sample vectors, <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>, and their corresponding outputs, <span class="math">\(y^{(1)}, y^{(2)}, ..., y^{(N)}\)</span>. To be
 clear, let's define</p>
 <ul class="simple">
-<li><span class="math">\(x_j^{(i)}\)</span> as feature <span class="math">\(j\)</span> from sample <span class="math">\(i\)</span> and</li>
-<li><span class="math">\(\vec{x}^{(n)}\)</span> as the vector of all features from sample <span class="math">\(n\)</span>.</li>
+<li><span class="math">\(x_j^{(n)}\)</span> as feature <span class="math">\(j\)</span> from observation <span class="math">\(n\)</span> and</li>
+<li><span class="math">\(\vec{x}^{(n)}\)</span> as the vector of all features from observation <span class="math">\(n\)</span>.</li>
 </ul>
 <p>For each observed input <span class="math">\(\vec{x}^{(n)}\)</span> we know that <span class="math">\(f(\vec{x}^{(n)}) = y^{(n)}\)</span>, so we can say that we want <span class="math">\(h_\theta(\vec{x}^{(n)}) - y^{(n)} \approx 0\)</span>.</p>
 <p>To quantify this intuition, let's define an <em>error function</em>:</p>
