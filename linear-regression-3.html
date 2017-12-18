@@ -121,101 +121,131 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
     <!-- Post Content -->
     <article>
-        <p>In the <a class="reference external" href="https://jmpounders.github.io/linear-regression-2.html">previous post</a> on linear regression I worked through the construction of linear regression in terms of vector spaces.  Solving the regression problem reduced to constraining the regression error to a subspace of a potentially large, finite-dimensional vector space.  Specifically, the regression error was forced to be <em>orthogonal</em> to the subspace of all possible predictions derived from the training set.</p>
-<p>In this post I want to lift regression fully to the space of continuous polynomials.  This is actually quite straightforward and is more of a mental exercise than anything else.</p>
-<div class="section" id="recap">
+        <p>In the <a href="%7Bfilename%7D/linreg2.rst">previous post</a> on linear regression
+I worked through the construction of linear regression in terms of
+vector spaces. Solving the regression problem reduced to constraining
+the regression error to a subspace of a potentially large,
+finite-dimensional vector space. Specifically, the regression error was
+forced to be <em>orthogonal</em> to the subspace of all possible predictions
+derived from the training set.</p>
+<p>In this post I want to lift regression fully to the space of continuous
+polynomials. This is actually quite straightforward and is more of a
+mental exercise than anything else.</p>
 <h2>Recap</h2>
-<p>Following is a summary of the notation established in the post on <a class="reference external" href="https://jmpounders.github.io/linear-regression-2.html">regression from a vector space perspective</a>.
-- Say that we have a set of <em>observation vectors</em> <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>.
-- Each observation vectors encodes <span class="math">\(J\)</span> features; the value <span class="math">\(x_j^{(n)}\)</span> represents the <span class="math">\(j\)</span>vec{x}_j` is the length-<span class="math">\(N\)</span> vector consisting of <em>all</em> observations of feature <span class="math">\(j\)</span>, called a <em>feature vector</em>.</p>
-<p>Given any observation vector, <span class="math">\(\vec{x}\)</span>, a regression model will predict an output <span class="math">\(y\)</span> from</p>
-<div class="math">
-\begin{equation*}
-y = h_\theta(\vec{x}) \equiv \left&lt; \vec{x}, \vec{\theta} \right&gt; \equiv \sum_{j=1}^J x_j \theta_j.
-\end{equation*}
-</div>
-<p>In linear regression, the weight vector <span class="math">\(\vec{\theta}\)</span> can be selected by requiring the regression error be orthogonal to all of the feature vectors, i.e. <span class="math">\(\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0\)</span> for <span class="math">\(j=1,2,...,J\)</span>.  The error vector in this equation is defined as the difference between the predicted and observed target values: <span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span>.</p>
-</div>
-<div class="section" id="from-finite-to-infinite-dimensional-spaces">
+<p>Following is a summary of the notation established in the post on
+<a href="%7Bfilename%7D/linreg2.rst">regression from a vector space perspective</a>. </p>
+<ul>
+<li>Say that we have a set of <em>observation vectors</em> <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>. </li>
+<li>Each observation vectors encodes <span class="math">\(J\)</span> features; the value <span class="math">\(x_j^{(n)}\)</span> represents the feature <span class="math">\(j\)</span> feature from observation <span class="math">\(n\)</span></li>
+<li>Vector <span class="math">\(\vec{x}_j\)</span> is the length-<span class="math">\(N\)</span> vector consisting of <em>all</em> observations of feature <span class="math">\(j\)</span>, called a <em>feature vector</em>.</li>
+</ul>
+<p>Given any observation vector, <span class="math">\(\vec{x}\)</span>, a regression model will predict
+an output <span class="math">\(y\)</span> from</p>
+<div class="math">$$y = h_\theta(\vec{x}) \equiv \left&lt; \vec{x}, \vec{\theta} \right&gt; \equiv \sum_{j=1}^J x_j \theta_j.$$</div>
+<p>In linear regression, the weight vector <span class="math">\(\vec{\theta}\)</span> can be selected
+by requiring the regression error be orthogonal to all of the feature
+vectors, i.e. <span class="math">\(\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0\)</span> for <span class="math">\(j=1,2,...,J\)</span>.
+The error vector in this equation is defined as the difference between
+the predicted and observed target values:
+<span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span>.</p>
 <h2>From Finite to Infinite Dimensional Spaces</h2>
-<p>As it stands now, we have <span class="math">\(N\)</span> observations of our (<span class="math">\(J\)</span>) features.  We could collect more data to increase <span class="math">\(N\)</span>.  In theory, we could collect an <em>infinite</em> number of data points so that we had observations for every imaginable combination of feature values.</p>
-<p>In this imaginary world with infinite data, it no longer makes sense to number our training observations (<span class="math">\(\vec{x}^{(n)}\)</span> and <span class="math">\(y^{(n)}\)</span>) because we would have an observation available for any possible vector <span class="math">\(\vec{x}\)</span> that we could construct.  Furthermore, the infinite set of target values would coallesce to form a <em>function</em> of the input vectors, <span class="math">\(y(\vec{x})\)</span>, that is defined for any <span class="math">\(\vec{x}\)</span> we can throw into it.  Think about this like a state of omniscience where you don't just have observed data, you know the fundamental &quot;ground truth.&quot;</p>
+<p>As it stands now, we have <span class="math">\(N\)</span> observations of our (<span class="math">\(J\)</span>) features. We
+could collect more data to increase <span class="math">\(N\)</span>. In theory, we could collect an
+<em>infinite</em> number of data points so that we had observations for every
+imaginable combination of feature values.</p>
+<p>In this imaginary world with infinite data, it no longer makes sense to
+number our training observations (<span class="math">\(\vec{x}^{(n)}\)</span> and <span class="math">\(y^{(n)}\)</span>) because
+we would have an observation available for any possible vector <span class="math">\(\vec{x}\)</span>
+that we could construct. Furthermore, the infinite set of target values
+would coallesce to form a <em>function</em> of the input vectors, <span class="math">\(y(\vec{x})\)</span>,
+that is defined for any <span class="math">\(\vec{x}\)</span> we can throw into it. Think about this
+like a state of omniscience where you don't just have observed data, you
+know the fundamental "ground truth."</p>
 <blockquote>
-<p>(ASIDE #1: Going from finite to infinite observations, as I did above, is a little naive.  That type of infinity is still considered <em>countable</em>.  I actually need to jump from finite all the way to <em>uncountably infinite</em> observations.  I am going to take license and sweep those technicalities under the rug for the sake of simplicity.)</p>
-<p>(ASIDE #2: I am assuming that there is no observation error associated with the data, and that it is perfectly reproducible.  This is not a &quot;realistic&quot; assumption, but my goal is to focus on the mathematical mechanics here, so we will worry about reality later.)</p>
+<p>(ASIDE #1: Going from finite to infinite observations, as I did
+above, is a little naive. That type of infinity is still considered
+<em>countable</em>. I actually need to jump from finite all the way to
+<em>uncountably infinite</em> observations. I am going to take license and
+sweep those technicalities under the rug for the sake of simplicity.)</p>
+<p>(ASIDE #2: I am assuming that there is no observation error
+associated with the data, and that it is perfectly reproducible. This
+is not a "realistic" assumption, but my goal is to focus on the
+mathematical mechanics here, so we will worry about reality later.)</p>
 </blockquote>
-<p>Now let's say that we want to build a linear regression model to represent the &quot;truth&quot; function <span class="math">\(y(x)\)</span>.  Let's represent the linear regression model by a <em>hypothesis function</em>:</p>
-<div class="math">
-\begin{equation*}
-h_\vec{\theta}(\vec{x}) = \sum_{j=1}^J x_j \theta_j.
-\end{equation*}
-</div>
-<p>How should we train this model?  Well, even though we now have &quot;infinite data&quot; (i.e., continuous <span class="math">\(x_j\)</span> values), our model is still <span class="math">\(J\)</span>-dimensional (finite).  Just as before we can think about our regression model as predicting <span class="math">\(J\)</span>-dimensional predictions in a much larger (now infinitely large) vector space.</p>
-<p>The trick to actually training the model in the finite-dimensional case was to require that the error of the model be orthogonal to the feature vectors over all training observations.  Orthogonality requires that we define an inner product.  In the finite dimensional case this meant defining an inner product on the <span class="math">\(N\)</span>-dimensional vector space where the observations and predictions of the target value lived.  Specifically, the inner product <span class="math">\(\left&lt; \cdot, \cdot \right&gt;\)</span> was defined so that</p>
-<div class="math">
-\begin{equation*}
-\left&lt; \vec{x}_j, \vec{e} \right&gt; = \sum_n^N x_j^{(n)} e^{(n)}.
-\end{equation*}
-</div>
-<p>Recall that <span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span> is the error vector on the training set, so the required orthogonality can be written</p>
-<div class="math">
-\begin{equation*}
-\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0
-\end{equation*}
-</div>
+<p>Now let's say that we want to build a linear regression model to
+represent the "truth" function <span class="math">\(y(x)\)</span>. Let's represent the linear
+regression model by a <em>hypothesis function</em>:</p>
+<div class="math">$$h_\vec{\theta}(\vec{x}) = \sum_{j=1}^J x_j \theta_j.$$</div>
+<p>How should we train this model? Well, even though we now have "infinite
+data" (i.e., continuous <span class="math">\(x_j\)</span> values), our model is still
+<span class="math">\(J\)</span>-dimensional (finite). Just as before we can think about our
+regression model as predicting <span class="math">\(J\)</span>-dimensional predictions in a much
+larger (now infinitely large) vector space.</p>
+<p>The trick to actually training the model in the finite-dimensional case
+was to require that the error of the model be orthogonal to the feature
+vectors over all training observations. Orthogonality requires that we
+define an inner product. In the finite dimensional case this meant
+defining an inner product on the <span class="math">\(N\)</span>-dimensional vector space where the
+observations and predictions of the target value lived. Specifically,
+the inner product <span class="math">\(\left&lt; \cdot, \cdot \right&gt;\)</span> was defined so that</p>
+<div class="math">$$\left&lt; \vec{x}_j, \vec{e} \right&gt; = \sum_n^N x_j^{(n)} e^{(n)}.$$</div>
+<p>Recall that <span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span> is the
+error vector on the training set, so the required orthogonality can be
+written</p>
+<div class="math">$$\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0$$</div>
 <p>for <span class="math">\(j=1,2,...,J\)</span>.</p>
-<p>With our new infinite-dimensional case, the inner product defined above no longer works.  Luckily we can define a new inner product.</p>
-<div class="math">
-\begin{equation*}
-\left&lt; x_j, e(\vec{x}) \right&gt; = \int x_j e(\vec{x}) dx_j
-\end{equation*}
-</div>
-<p>for <span class="math">\(j=1,2,...,J\)</span>.  In this case, <span class="math">\(x_j\)</span> is a continuous variable and <span class="math">\(e(\vec{x}) = h_\vec{\theta}(\vec{x}) - y(\vec{x})\)</span>.  This is extension of the inner product parallels the extension of sums to integrals.  We are requiring that the error <em>for all values of :math:`vec{x}`</em> be orthogonal to each of the <span class="math">\(x_j\)</span> <em>variables</em>.</p>
-<p>Orthogonality with respect to a <em>variable</em> may not be intuitive.  One way to think about this is imagine that we just have one feature variable, <span class="math">\(x\)</span>.  The error between truth, <span class="math">\(y(x)\)</span>, and prediction, <span class="math">\(h_\theta(x)\)</span>, would then be an arbitrary function of <span class="math">\(x\)</span>, <span class="math">\(e(x) = h_\theta(x) - y(x)\)</span>.  If the error function is smooth, however, we can usually express it as a polynomial,</p>
-<div class="math">
-\begin{equation*}
-e(x) = \sum_{n=0}^\infty a_n x^n
-\end{equation*}
-</div>
-<p>where <span class="math">\(a_n\)</span> is some real-valued coefficient, perhaps found by a Taylor expansion.  Looking at the error in this polynomial form, we can see that it is actually a vector!  It is a vector that lives in an infinite-dimensional vector space spanned by the basis &quot;vectors&quot; <span class="math">\(x^0\)</span>, <span class="math">\(x^1\)</span>, <span class="math">\(x^2\)</span>, etc.  Orthogonality with respect to <span class="math">\(x\)</span> would mean that there is no component of the error in <span class="math">\(x^1\)</span> direction, i.e. <span class="math">\(a_1 = 0\)</span>.</p>
-<p>This intuition extends back to our original case with <span class="math">\(J\)</span> features, but the error &quot;polynomial&quot; would be a <span class="math">\(J\)</span>-fold sum that would include all possible combinations of all powers of each of the <span class="math">\(J\)</span> feature variables.</p>
-</div>
-<div class="section" id="from-infinity-back-down">
+<p>With our new infinite-dimensional case, the inner product defined above
+no longer works. Luckily we can define a new inner product.</p>
+<div class="math">$$\left&lt; x_j, e(\vec{x}) \right&gt; = \int x_j e(\vec{x}) dx_j$$</div>
+<p>for <span class="math">\(j=1,2,...,J\)</span>. In this case, <span class="math">\(x_j\)</span> is a continuous variable and
+<span class="math">\(e(\vec{x}) = h_\vec{\theta}(\vec{x}) - y(\vec{x})\)</span>. This is extension
+of the inner product parallels the extension of sums to integrals. We
+are requiring that the error <em>for all values of <span class="math">\(\vec{x}\)</span></em> be orthogonal
+to each of the <span class="math">\(x_j\)</span> <em>variables</em>.</p>
+<p>Orthogonality with respect to a <em>variable</em> may not be intuitive. One way
+to think about this is imagine that we just have one feature variable,
+<span class="math">\(x\)</span>. The error between truth, <span class="math">\(y(x)\)</span>, and prediction, <span class="math">\(h_\theta(x)\)</span>,
+would then be an arbitrary function of <span class="math">\(x\)</span>, <span class="math">\(e(x) = h_\theta(x) - y(x)\)</span>.
+If the error function is smooth, however, we can usually express it as a
+polynomial,</p>
+<div class="math">$$e(x) = \sum_{n=0}^\infty a_n x^n$$</div>
+<p>where <span class="math">\(a_n\)</span> is some real-valued coefficient, perhaps found by a Taylor
+expansion. Looking at the error in this polynomial form, we can see that
+it is actually a vector! It is a vector that lives in an
+infinite-dimensional vector space spanned by the basis "vectors" <span class="math">\(x^0\)</span>,
+<span class="math">\(x^1\)</span>, <span class="math">\(x^2\)</span>, etc. Orthogonality with respect to <span class="math">\(x\)</span> would mean that
+there is no component of the error in <span class="math">\(x^1\)</span> direction, i.e. <span class="math">\(a_1 = 0\)</span>.</p>
+<p>This intuition extends back to our original case with <span class="math">\(J\)</span> features, but
+the error "polynomial" would be a <span class="math">\(J\)</span>-fold sum that would include all
+possible combinations of all powers of each of the <span class="math">\(J\)</span> feature
+variables.</p>
 <h2>From Infinity Back Down</h2>
-<p>Going to the infinite-dimensional, continuous variable case is a bit academic, but it does provide mechanics that are useful in some cases (e.g. a continuous distribution that was constructed from finite observations).  It is possible to come back down to the case of simple (finite) regression in a consistent manner.</p>
-<p>To do this, we can force our truth function to take a restricted form that is non-zero only at a finite set of values:</p>
-<div class="math">
-\begin{equation*}
-y(\vec{x}) = \sum_{n=1}^N \delta(\vec{x} - \vec{x}^{(n)}) y^{(n)}
-\end{equation*}
-</div>
-<p>for some finite set <span class="math">\(\{ \vec{x}^{(n)}, y^{(n)} \}_{n=1}^N\)</span>.  Because we only have non-zero target values over this set, we calculate the regression error over this supported subset of the domain:</p>
-<div class="math">
-\begin{equation*}
-e(\vec{x}) = \sum_{n=1}^N \delta(\vec{x} - \vec{x}^{(n)}) \left[ h_\vec{\theta}(\vec{x}) - y^{(n)} \right]
-\end{equation*}
-</div>
+<p>Going to the infinite-dimensional, continuous variable case is a bit
+academic, but it does provide mechanics that are useful in some cases
+(e.g. a continuous distribution that was constructed from finite
+observations). It is possible to come back down to the case of simple
+(finite) regression in a consistent manner.</p>
+<p>To do this, we can force our truth function to take a restricted form
+that is non-zero only at a finite set of values:</p>
+<div class="math">$$y(\vec{x}) = \sum_{n=1}^N \delta(\vec{x} - \vec{x}^{(n)}) y^{(n)}$$</div>
+<p>for some finite set <span class="math">\(\{ \vec{x}^{(n)}, y^{(n)} \}_{n=1}^N\)</span>. Because we
+only have non-zero target values over this set, we calculate the
+regression error over this supported subset of the domain:</p>
+<div class="math">$$e(\vec{x}) = \sum_{n=1}^N \delta(\vec{x} - \vec{x}^{(n)}) \left[ h_\vec{\theta}(\vec{x}) - y^{(n)} \right]$$</div>
 <p>Applying our error orthogonality condition from before leads to</p>
-<div class="math">
-\begin{equation*}
-\int x_j \sum_{n=1}^N \delta(\vec{x} - \vec{x}^{(n)}) \left[ h_\vec{\theta}(\vec{x}) - y^{(n)} \right] dx_j = 0
-\end{equation*}
-</div>
-<p>for <span class="math">\(j=1,2,...,J\)</span>.  Stacking these <span class="math">\(J\)</span> expressions into a vector, we can write</p>
-<div class="math">
-\begin{equation*}
-\sum_{n=1}^N \int \vec{x} \delta(\vec{x} - \vec{x}^{(n)}) \left[ h_\vec{\theta}(\vec{x}) - y^{(n)} \right] d\vec{x} = 0.
-\end{equation*}
-</div>
+<div class="math">$$\int x_j \sum_{n=1}^N \delta(\vec{x} - \vec{x}^{(n)}) \left[ h_\vec{\theta}(\vec{x}) - y^{(n)} \right] dx_j = 0$$</div>
+<p>for <span class="math">\(j=1,2,...,J\)</span>. Stacking these <span class="math">\(J\)</span> expressions into a vector, we can
+write</p>
+<div class="math">$$\sum_{n=1}^N \int \vec{x} \delta(\vec{x} - \vec{x}^{(n)}) \left[ h_\vec{\theta}(\vec{x}) - y^{(n)} \right] d\vec{x} = 0.$$</div>
 <p>This simplifies to</p>
-<div class="math">
-\begin{equation*}
-\sum_{n=1}^N \vec{x}^{(n)} \left[ h_\vec{\theta}(\vec{x}^{(n)}) - y^{(n)} \right] = 0
-\end{equation*}
-</div>
-<p>A little bit of algebra will now reveal that this expression is equivalent to the <a class="reference external" href="http://mathworld.wolfram.com/NormalEquation.html">normal equation</a> for the unknown <span class="math">\(\vec{\theta}\)</span> vector!  The normal equation is where we left the <a class="reference external" href="https://jmpounders.github.io/linear-regression-2.html">last post</a> which took regression on from the perspective of vector spaces.</p>
-</div>
-<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+<div class="math">$$\sum_{n=1}^N \vec{x}^{(n)} \left[ h_\vec{\theta}(\vec{x}^{(n)}) - y^{(n)} \right] = 0$$</div>
+<p>A little bit of algebra will now reveal that this expression is
+equivalent to the <a href="http://mathworld.wolfram.com/NormalEquation.html">normal
+equation</a> for the
+unknown <span class="math">\(\vec{\theta}\)</span> vector! The normal equation is where we left the
+<a href="%7Bfilename%7D/linreg2.rst">last post</a> which took regression on from
+the perspective of vector spaces.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
         linebreak = "false";

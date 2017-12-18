@@ -121,29 +121,92 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
     <!-- Post Content -->
     <article>
-        <p>I was initially going to start this blog by diving straight into machine learning algorithms.  When describing the data going into these algorithms, however, I found myself asking what is &quot;data&quot;... <em>really</em>?</p>
-<p>Of course I had an intuitive definition of what <a class="reference external" href="https://en.wikipedia.org/wiki/Data_(word)">data</a> is.  I also had a pragmatic understanding of different data <em>types</em> (continuous, discrete, categorical, etc) and how to work with these types.  But I found myself reaching back to probability theory and real analysis searching for a more concrete foundation.  I worked out the relationships I was looking for, but the result was a bit technical and abstract.</p>
-<p>In what follows I try to boil those abstractions down to a &quot;simple&quot; explanation of what data is while preserving the abstractions that surface in the mathematics.  I break it into two pieces: where data comes from and how we record it.</p>
-<div class="section" id="stuff-happens-we-see-it-usually">
-<h2>Stuff happens.  We see it... usually.</h2>
-<p>Data is a recording of stuff that happens.  The &quot;stuff&quot; that happens is the result of some procedure, experiment, trial, operation, event, etc.  It's the roll of a dice, the draw of a card, the time at which you eat breakfast.  For now let's say that there is an <em>experiment</em> with an observable <em>outcome</em>.</p>
-<p>For some experiments, I may want to lump certain outcomes together.  If the experiment is drawing a card from a deck, I may just care about whether that card is red or not.  The <em>outcome</em> of the experiment is a single card with unique suite and denomination, but the <em>event</em> I am interested in is the drawing of a red card, which includes all hearts and diamonds of all denominations.  On the other hand the event that I am interested in may be drawing the ace of spades, in which the event is just one of the possible outcomes.  That's okay.  All outcomes are events, but some events incorporate multiple outcomes.</p>
-<p>Finally, if I want to do anything quantitative with my events, then I need a way to describe them numerically.  This numerical description should allow me to compare events, relative to each other, in a meaningful and precise way.  Intuitively, the &quot;size&quot; of an event (the number of red cards) with respect to the size of the sample space (52 cards) provides a convenient metric.  If I generalize the concept of &quot;size of an event,&quot; then I can construct a way to measure all events.  If I do this carefully and intentionally (making sure to satisfy some common-sense requirements), the measure of an event becomes the <em>probability</em> associated with that event.</p>
-<p>The probability &quot;measure&quot; of an event is useful because it allows me to consider how likely a given event is.  Put another way, it allows me some insight into how uncertain my <em>prediction</em> of an event may be.  This is important because the underlying experiment (the one that caused the event) is usually random.</p>
-</div>
-<div class="section" id="data-representation">
+        <p>I was initially going to start this blog by diving straight into machine
+learning algorithms. When describing the data going into these
+algorithms, however, I found myself asking what is "data"... <em>really</em>?</p>
+<p>Of course I had an intuitive definition of what
+<a href="https://en.wikipedia.org/wiki/Data_(word)">data</a> is. I also had a
+pragmatic understanding of different data <em>types</em> (continuous, discrete,
+categorical, etc) and how to work with these types. But I found myself
+reaching back to probability theory and real analysis searching for a
+more concrete foundation. I worked out the relationships I was looking
+for, but the result was a bit technical and abstract.</p>
+<p>In what follows I try to boil those abstractions down to a "simple"
+explanation of what data is while preserving the abstractions that
+surface in the mathematics. I break it into two pieces: where data comes
+from and how we record it.</p>
+<h2>Stuff happens. We see it... usually.</h2>
+<p>Data is a recording of stuff that happens. The "stuff" that happens is
+the result of some procedure, experiment, trial, operation, event, etc.
+It's the roll of a dice, the draw of a card, the time at which you eat
+breakfast. For now let's say that there is an <em>experiment</em> with an
+observable <em>outcome</em>.</p>
+<p>For some experiments, I may want to lump certain outcomes together. If
+the experiment is drawing a card from a deck, I may just care about
+whether that card is red or not. The <em>outcome</em> of the experiment is a
+single card with unique suite and denomination, but the <em>event</em> I am
+interested in is the drawing of a red card, which includes all hearts
+and diamonds of all denominations. On the other hand the event that I am
+interested in may be drawing the ace of spades, in which the event is
+just one of the possible outcomes. That's okay. All outcomes are events,
+but some events incorporate multiple outcomes.</p>
+<p>Finally, if I want to do anything quantitative with my events, then I
+need a way to describe them numerically. This numerical description
+should allow me to compare events, relative to each other, in a
+meaningful and precise way. Intuitively, the "size" of an event (the
+number of red cards) with respect to the size of the sample space (52
+cards) provides a convenient metric. If I generalize the concept of
+"size of an event," then I can construct a way to measure all events. If
+I do this carefully and intentionally (making sure to satisfy some
+common-sense requirements), the measure of an event becomes the
+<em>probability</em> associated with that event.</p>
+<p>The probability "measure" of an event is useful because it allows me to
+consider how likely a given event is. Put another way, it allows me some
+insight into how uncertain my <em>prediction</em> of an event may be. This is
+important because the underlying experiment (the one that caused the
+event) is usually random.</p>
 <h2>Data representation</h2>
-<p>When we collect data, we are simply observing the outcomes of experiments.  To be precise in our observations, we can associate outcomes with pre-defined <em>states</em> that we can record unambiguously.  Because in computing virtually all data must be treated numerically, the state associated with an outcome is usually numeric.  If the underlying outcome is non-numeric, we must manually map the outcome to a numeric state, even if that mapping is somewhat arbitrary. (Think of mapping a card to an integer between 1 and 52 or a generic time to a concrete year, month, day, hour, minute, etc.)  In other situations, such as rolling a die, the outcomes are already numeric, and mapping the outcome to a state can be done implicitly.  These observed states are the data.</p>
-<p>In some cases, however, we may want more than a simple encoding of an outcome.  We may want an enriched description of what happened.  We can embellish on the state by listing properties, or <em>features</em>, of that outcome.  If the experiment was drawing a card, the suite and denomination are features describing the oucome, which is the card itself.  As with state, these features must be mapped to numerical values for practical purposes.  The feature &quot;color of the card&quot; can be either &quot;red&quot; or &quot;black&quot; that gets encoded as &quot;1&quot; or &quot;2&quot; or any other pair of numbers.</p>
-<p>So in the end, data collection can be seen as conducting a experiments.  The outcomes of these experiments can be represented by states that may also be augmented by additional features that we think are relevant or useful.  The real world is physical, not numerical, so everything must be mapped over to a numerical domain.  It is usually this collection of numerical values that are &quot;data.&quot;</p>
-</div>
-<div class="section" id="conclusion">
+<p>When we collect data, we are simply observing the outcomes of
+experiments. To be precise in our observations, we can associate
+outcomes with pre-defined <em>states</em> that we can record unambiguously.
+Because in computing virtually all data must be treated numerically, the
+state associated with an outcome is usually numeric. If the underlying
+outcome is non-numeric, we must manually map the outcome to a numeric
+state, even if that mapping is somewhat arbitrary. (Think of mapping a
+card to an integer between 1 and 52 or a generic time to a concrete
+year, month, day, hour, minute, etc.) In other situations, such as
+rolling a die, the outcomes are already numeric, and mapping the outcome
+to a state can be done implicitly. These observed states are the data.</p>
+<p>In some cases, however, we may want more than a simple encoding of an
+outcome. We may want an enriched description of what happened. We can
+embellish on the state by listing properties, or <em>features</em>, of that
+outcome. If the experiment was drawing a card, the suite and
+denomination are features describing the oucome, which is the card
+itself. As with state, these features must be mapped to numerical values
+for practical purposes. The feature "color of the card" can be either
+"red" or "black" that gets encoded as "1" or "2" or any other pair of
+numbers.</p>
+<p>So in the end, data collection can be seen as conducting a experiments.
+The outcomes of these experiments can be represented by states that may
+also be augmented by additional features that we think are relevant or
+useful. The real world is physical, not numerical, so everything must be
+mapped over to a numerical domain. It is usually this collection of
+numerical values that are "data."</p>
 <h2>Conclusion</h2>
-<p>Potntial data is everywhere.  After all, pretty much every thing that happens can be viewed as an experiment with an uncertain outcome.  If we capture these data and represent them in useful, numerical ways, it becomes possible to (hopefully) gain deeper insight into the world.  We can look for patterns in the data that may affect our decision making or draw inferences about &quot;experiements&quot; that have not yet been performed.</p>
-<p>This discussion may seem overly contrived, even obvious.  These minor distinctions, however, appear explicitly when we formalize these processes mathematically.  That will be the subject of a later post.</p>
-<p>Perhaps a more pragmatic takeaway, however, is that datasets (which are really just collections of numbers) always have a backstory.  What was the &quot;experiment&quot; leading to the data?  How were &quot;outcomes&quot; observed and mapped to numerical features?  When we generate or consume data, are we capturing that backstory adequately?</p>
-</div>
-
+<p>Potntial data is everywhere. After all, pretty much every thing that
+happens can be viewed as an experiment with an uncertain outcome. If we
+capture these data and represent them in useful, numerical ways, it
+becomes possible to (hopefully) gain deeper insight into the world. We
+can look for patterns in the data that may affect our decision making or
+draw inferences about "experiements" that have not yet been performed.</p>
+<p>This discussion may seem overly contrived, even obvious. These minor
+distinctions, however, appear explicitly when we formalize these
+processes mathematically. That will be the subject of a later post.</p>
+<p>Perhaps a more pragmatic takeaway, however, is that datasets (which are
+really just collections of numbers) always have a backstory. What was
+the "experiment" leading to the data? How were "outcomes" observed and
+mapped to numerical features? When we generate or consume data, are we
+capturing that backstory adequately?</p>
     </article>
 
         <div class="tags">

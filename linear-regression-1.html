@@ -120,71 +120,81 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
     <!-- Post Content -->
     <article>
-        <p>Linear regression is one of the most common machine learning algorithms.  Simply put, it is just curve fitting.  There are a number of ways to approach linear regression, however, and each approach tends to connect with a different branch of mathematics.  I will explore the different faces and extensions of linear regression on this blog over the next few weeks.</p>
-<p>In this post, I will introduce the basic problem of linear regression and a solution based in optimization.</p>
-<div class="section" id="the-regression-problem">
+        <p>Linear regression is one of the most common machine learning algorithms.
+Simply put, it is just curve fitting. There are a number of ways to
+approach linear regression, however, and each approach tends to connect
+with a different branch of mathematics. I will explore the different
+faces and extensions of linear regression on this blog over the next few
+weeks.</p>
+<p>In this post, I will introduce the basic problem of linear regression
+and a solution based in optimization.</p>
 <h2>The Regression Problem</h2>
-<p>Say that you have continuous, real-valued output or observation, <span class="math">\(y\)</span>, that you would like to predict given some set of input variables <span class="math">\(x_j\)</span> for <span class="math">\(j=1,2,...,J\)</span>. If the <span class="math">\(x_j\)</span> input are also continuous and real-valued then we have a <em>regression problem</em>.</p>
-<p>The regression problem really amounts to assuming that there is some implicit function that maps an input vector <span class="math">\(\vec{x}\)</span> to an output <span class="math">\(y\)</span>, then trying to determine that function by observing sample vectors from the input space. Let's call that &quot;true&quot; function <span class="math">\(f(\vec{x})\)</span>, where <span class="math">\(f : \mathbb{R}^J \rightarrow \mathbb{R}\)</span>.</p>
-</div>
-<div class="section" id="id1">
+<p>Say that you have continuous, real-valued output or observation, <span class="math">\(y\)</span>,
+that you would like to predict given some set of input variables <span class="math">\(x_j\)</span>
+for <span class="math">\(j=1,2,...,J\)</span>. If the <span class="math">\(x_j\)</span> input are also continuous and
+real-valued then we have a <em>regression problem</em>.</p>
+<p>The regression problem really amounts to assuming that there is some
+implicit function that maps an input vector <span class="math">\(\vec{x}\)</span> to an output <span class="math">\(y\)</span>,
+then trying to determine that function by observing sample vectors from
+the input space. Let's call that "true" function <span class="math">\(f(\vec{x})\)</span>, where
+<span class="math">\(f : \mathbb{R}^J \rightarrow \mathbb{R}\)</span>.</p>
 <h2>Linear Regression</h2>
-<p>The goal of regression is to generate a <em>hypothesis</em> function, <span class="math">\(h_\theta(\vec{x})\)</span>, that approximates the true function <span class="math">\(f(\vec{x})\)</span>.  With <em>linear</em> regression, we assume that the output variable, <span class="math">\(y\)</span>, can be written as a linear combination of the input data, <span class="math">\(x_j\)</span> (<span class="math">\(j=1,2,...,J\)</span>). This assumption of linearity defines the hypothesis function as</p>
-<div class="math">
-\begin{equation*}
-h_\theta(\vec{x}) = \theta_0 + \sum_{j=1}^J \theta_j x_j,
-\end{equation*}
-</div>
-<p>where <span class="math">\(\theta_j\)</span> are the coefficients of the linear combination. The <span class="math">\(\theta_0\)</span> parameter is often called the <em>bias term</em>.</p>
-<div class="section" id="identifying-the-best-hypothesis">
-<h3>Identifying the &quot;Best&quot; Hypothesis</h3>
-<p>We want we want the hypothesis function to be a good approximation of the true function: <span class="math">\(h_\theta(\vec{x}) \approx f(\vec{x})\)</span>.  How do we determine what a &quot;good&quot; approximation is?  To start, let's assume that we observe <span class="math">\(N\)</span> sample vectors, <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>, and their corresponding outputs, <span class="math">\(y^{(1)}, y^{(2)}, ..., y^{(N)}\)</span>. To be
-clear, let's define</p>
-<ul class="simple">
+<p>The goal of regression is to generate a <em>hypothesis</em> function,
+<span class="math">\(h_\theta(\vec{x})\)</span>, that approximates the true function <span class="math">\(f(\vec{x})\)</span>.
+With <em>linear</em> regression, we assume that the output variable, <span class="math">\(y\)</span>, can
+be written as a linear combination of the input data, <span class="math">\(x_j\)</span>
+(<span class="math">\(j=1,2,...,J\)</span>). This assumption of linearity defines the hypothesis
+function as</p>
+<div class="math">$$h_\theta(\vec{x}) = \theta_0 + \sum_{j=1}^J \theta_j x_j,$$</div>
+<p>where <span class="math">\(\theta_j\)</span> are the coefficients of the linear combination. The
+<span class="math">\(\theta_0\)</span> parameter is often called the <em>bias term</em>.</p>
+<h3>Identifying the "Best" Hypothesis</h3>
+<p>We want we want the hypothesis function to be a good approximation of
+the true function: <span class="math">\(h_\theta(\vec{x}) \approx f(\vec{x})\)</span>. How do we
+determine what a "good" approximation is? To start, let's assume that we
+observe <span class="math">\(N\)</span> sample vectors,
+<span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>, and their
+corresponding outputs, <span class="math">\(y^{(1)}, y^{(2)}, ..., y^{(N)}\)</span>. To be clear,
+let's define</p>
+<ul>
 <li><span class="math">\(x_j^{(n)}\)</span> as feature <span class="math">\(j\)</span> from observation <span class="math">\(n\)</span> and</li>
 <li><span class="math">\(\vec{x}^{(n)}\)</span> as the vector of all features from observation <span class="math">\(n\)</span>.</li>
 </ul>
-<p>For each observed input <span class="math">\(\vec{x}^{(n)}\)</span> we know that <span class="math">\(f(\vec{x}^{(n)}) = y^{(n)}\)</span>, so we can say that we want <span class="math">\(h_\theta(\vec{x}^{(n)}) - y^{(n)} \approx 0\)</span>.</p>
+<p>For each observed input <span class="math">\(\vec{x}^{(n)}\)</span> we know that
+<span class="math">\(f(\vec{x}^{(n)}) = y^{(n)}\)</span>, so we can say that we want
+<span class="math">\(h_\theta(\vec{x}^{(n)}) - y^{(n)} \approx 0\)</span>.</p>
 <p>To quantify this intuition, let's define an <em>error function</em>:</p>
-<div class="math">
-\begin{equation*}
-\text{error}_\theta(\vec{x} | y) = h_\theta(\vec{x}) - y.
-\end{equation*}
-</div>
-<p>A measure of the total error associated with hypothesis <span class="math">\(h_\theta(\vec{x})\)</span> given <span class="math">\(N\)</span> input/output observations could then be written</p>
-<div class="math">
-\begin{equation*}
-J(\vec{\theta}) = \frac{1}{2N} \sum_{n=1}^N \left[ \text{error}_\theta(\vec{x}^{(n)} | y^{(n)}) \right]^2.
-\end{equation*}
-</div>
-<p>Here we have squared the error (to avoid cancellation between positive and negative values), then averaged over all observations.  The function <span class="math">\(J(\vec{\theta})\)</span> is often called the <em>cost function</em>.</p>
-<p>Minimizing the cost function is now equivalent to minimizing the average squared-error associated with the hypothesis function.  If we view the hypothesis function as generating predictions of the output varaiable (given some input), then this process will minimize the difference between the <em>actual</em> and <em>predicted</em> output for all of the <span class="math">\(N\)</span> observations we have.</p>
-</div>
-<div class="section" id="finding-the-best-hypothesis">
-<h3>Finding the &quot;Best&quot; Hypothesis</h3>
-<p>In principal we can use any optimization algorithm to minimize <span class="math">\(J(\vec{\theta})\)</span>.  Formally we can state this goal as finding the coefficient vector <span class="math">\(\vec{\theta}^*\)</span> that minimizes the cost function:</p>
-<div class="math">
-\begin{equation*}
-\vec{\theta}^* = \text{arg min } J(\vec{\theta}).
-\end{equation*}
-</div>
-<p>Using <a class="reference external" href="https://en.wikipedia.org/wiki/Gradient_descent">gradient descent</a> optimization, for example, we can minimize the cost function by iteratively applying the following map:</p>
-<div class="math">
-\begin{equation*}
-\vec{\theta}^{(i+1)} \leftarrow \vec{\theta}^{(i)} - \alpha \vec{\nabla} J(\vec{\theta}^{(i)})
-\end{equation*}
-</div>
-<p>where <span class="math">\(\alpha\)</span> is called the learning rate.  If this iteration converges, then <span class="math">\(\vec{\theta}^{(i)} \rightarrow \vec{\theta}^*\)</span> as <span class="math">\(i \rightarrow \infty\)</span>.</p>
-<p>In the case of linear regression, the gradient vector in this expression can be formed explicitly (a convenience that is not always the case):</p>
-<div class="math">
-\begin{equation*}
-\left[ \vec{\nabla} J(\vec{\theta}) \right]_j = \frac{\partial J}{\partial \theta_j}
-                                              = \frac{1}{N} \sum_{n=1}^N \left[ h_{\theta}(\vec{x}^{(n)}) - y^{(n)} \right] x_j^{(n)}.
-\end{equation*}
-</div>
-</div>
-</div>
-<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+<div class="math">$$\text{error}_\theta(\vec{x} | y) = h_\theta(\vec{x}) - y.$$</div>
+<p>A measure of the total error associated with hypothesis
+<span class="math">\(h_\theta(\vec{x})\)</span> given <span class="math">\(N\)</span> input/output observations could then be
+written</p>
+<div class="math">$$J(\vec{\theta}) = \frac{1}{2N} \sum_{n=1}^N \left[ \text{error}_\theta(\vec{x}^{(n)} | y^{(n)}) \right]^2.$$</div>
+<p>Here we have squared the error (to avoid cancellation between positive
+and negative values), then averaged over all observations. The function
+<span class="math">\(J(\vec{\theta})\)</span> is often called the <em>cost function</em>.</p>
+<p>Minimizing the cost function is now equivalent to minimizing the average
+squared-error associated with the hypothesis function. If we view the
+hypothesis function as generating predictions of the output varaiable
+(given some input), then this process will minimize the difference
+between the <em>actual</em> and <em>predicted</em> output for all of the <span class="math">\(N\)</span>
+observations we have.</p>
+<h3>Finding the "Best" Hypothesis</h3>
+<p>In principal we can use any optimization algorithm to minimize
+<span class="math">\(J(\vec{\theta})\)</span>. Formally we can state this goal as finding the
+coefficient vector <span class="math">\(\vec{\theta}^*\)</span> that minimizes the cost function:</p>
+<div class="math">$$\vec{\theta}^* = \text{arg min } J(\vec{\theta}).$$</div>
+<p>Using <a href="https://en.wikipedia.org/wiki/Gradient_descent">gradient descent</a>
+optimization, for example, we can minimize the cost function by
+iteratively applying the following map:</p>
+<div class="math">$$\vec{\theta}^{(i+1)} \leftarrow \vec{\theta}^{(i)} - \alpha \vec{\nabla} J(\vec{\theta}^{(i)})$$</div>
+<p>where <span class="math">\(\alpha\)</span> is called the learning rate. If this iteration converges,
+then <span class="math">\(\vec{\theta}^{(i)} \rightarrow \vec{\theta}^*\)</span> as
+<span class="math">\(i \rightarrow \infty\)</span>.</p>
+<p>In the case of linear regression, the gradient vector in this expression
+can be formed explicitly (a convenience that is not always the case):</p>
+<div class="math">$$\left[ \vec{\nabla} J(\vec{\theta}) \right]_j = \frac{\partial J}{\partial \theta_j}
+                                              = \frac{1}{N} \sum_{n=1}^N \left[ h_{\theta}(\vec{x}^{(n)}) - y^{(n)} \right] x_j^{(n)}.$$</div>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
         linebreak = "false";

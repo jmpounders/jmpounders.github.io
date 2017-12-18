@@ -121,94 +121,151 @@
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
     <!-- Post Content -->
     <article>
-        <p>In what follows I will build up the linear algebraic formalism for linear regression.  Sound boring?  I actually found that working through the mathematics of regression in terms of vector spaces revealed a new way of thinking about prediction error.</p>
-<p>The end result of this post will be the set of &quot;normal equations&quot; that provide the least-squares solution to linear regression.  This solution is equivalent to the optimization-based approach from <a class="reference external" href="https://jmpounders.github.io/linear-regression-1.html">this post</a>.  The approach I take to building up the normal equations draws heavily on the ideas of vector spaces.</p>
+        <p>In what follows I will build up the linear algebraic formalism for
+linear regression. Sound boring? I actually found that working through
+the mathematics of regression in terms of vector spaces revealed a new
+way of thinking about prediction error.</p>
+<p>The end result of this post will be the set of "normal equations" that
+provide the least-squares solution to linear regression. This solution
+is equivalent to the optimization-based approach from <a href="%7Bfilename%7D/linreg1.rst">this
+post</a>. The approach I take to building up
+the normal equations draws heavily on the ideas of vector spaces.</p>
 <p>So let's start with a <em>brief</em> review of vector spaces.</p>
-<div class="section" id="vector-spaces">
 <h2>Vector Spaces</h2>
-<p>For the purposes of the discussion here, a vector is simply a list of numbers.  Let's also assume that the numbers populating a vector are <em>real</em> numbers.  An example of such a vector would be the <span class="math">\((x,y,z)\)</span> location of a point in three-dimensional space, or the latitude-longitude coordinates of someplace on a two-dimensional plane.  In both cases we can talk about a <em>single</em> vector describing a <em>single</em> location, but we should also realize that there are <em>infinitely</em> many different locations that are possible.  When we consider the set of all <em>possible</em> vectors then we abstracting up to the notion of a <em>vector space</em>.</p>
-<p>Put simply, a vector space is where vectors live.  If a vector contains <span class="math">\(N\)</span> numbers then we say that it lives in the <span class="math">\(N\)</span>-dimensional space called <span class="math">\(\mathbb{R}^N\)</span>. There are several properties that a vector space must satisfy for it to be a true vector space.  I won't enumerate these properties, but they essentially make sure that that addition and (scalar) multiplication don't take you out of the vector space.</p>
-<p>One of the important concepts from vector spaces I will use is the concept of <em>span</em>.  If you think of a vector as a direction in space, then the span of a set of vectors would be all the locations in space you can reach by adding, stretching and shrinking among that set of vectors.  Using spans makes it easy to talk about <em>subspaces</em>.  You and I live three-dimensional space.  This space, for example, is spanned by the direction vectors up/down, left/right, and front/back.  But if we can can only move along the two-dimensional surface of the ground, then we are confined to a subspace that is spanned by two vectors: namely, the two vectors in the plane of the surface (left/right, front/back).  Think about walking vs. flying.</p>
-<img alt="A 2D subspace in a 3D space." class="align-right" src="https://jmpounders.github.io/images/3d2d.png" style="height: 400px;" />
-<p>Lastly, it's common to define inner products on vector spaces.  An inner product is normally constructed to reveal how much of one vector is pointing in another vector's direction.  (A &quot;dot&quot; product is an example of an inner product.)  Specifically, the <em>scalar projection</em> of one vector onto another, defined by an inner product, reveals the length of the former if it is collapsed onto the latter.</p>
-<img alt="Projection of one vector onto another.  Scalar projection shown in red." class="align-center" src="https://jmpounders.github.io/images/projection.png" />
-</div>
-<div class="section" id="regression-vectors">
+<p>For the purposes of the discussion here, a vector is simply a list of
+numbers. Let's also assume that the numbers populating a vector are
+<em>real</em> numbers. An example of such a vector would be the <span class="math">\((x,y,z)\)</span>
+location of a point in three-dimensional space, or the
+latitude-longitude coordinates of someplace on a two-dimensional plane.
+In both cases we can talk about a <em>single</em> vector describing a <em>single</em>
+location, but we should also realize that there are <em>infinitely</em> many
+different locations that are possible. When we consider the set of all
+<em>possible</em> vectors then we are abstracting up to the notion of a <em>vector
+space</em>.</p>
+<p>Put simply, a vector space is where vectors live. If a vector contains
+<span class="math">\(N\)</span> numbers then we say that it lives in the <span class="math">\(N\)</span>-dimensional space
+called <span class="math">\(\mathbb{R}^N\)</span>. There are several properties that a vector space
+must satisfy for it to be a true vector space. I won't enumerate these
+properties, but they essentially make sure that that addition and
+(scalar) multiplication don't take you out of the vector space.</p>
+<p>One of the important concepts from vector spaces I will use is the
+concept of <em>span</em>. If you think of a vector as a direction in space,
+then the span of a set of vectors would be all the locations in space
+you can reach by adding, stretching and shrinking among that set of
+vectors. Using spans makes it easy to talk about <em>subspaces</em>. You and I
+live in three-dimensional space. This space, for example, is spanned by the
+direction vectors up/down, left/right, and front/back. But if we can can
+only move along the two-dimensional surface of the ground, then we are
+confined to a subspace that is spanned by two vectors: namely, the two
+vectors in the plane of the surface (left/right, front/back). Think
+about walking vs. flying.</p>
+<p><img alt="A 2D subspace in a 3D space." height="400px" src="%7Bfilename%7D/images/3d2d.png"></p>
+<p>Lastly, it's common to define inner products on vector spaces. An inner
+product is normally constructed to reveal how much of one vector is
+pointing in another vector's direction. (A "dot" product is an example
+of an inner product.) Specifically, the <em>scalar projection</em> of one
+vector onto another, defined by an inner product, reveals the length of
+the former if it is collapsed onto the latter.</p>
+<p><img alt="Projection of one vector onto another.  Scalar projection shown in red." src="%7Bfilename%7D/images/projection.png"></p>
 <h2>Regression Vectors</h2>
-<p>When we consider a numerical data set (as in linear regression), we normally are referring to a set of vector observations, say <span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>.  Each of these vectors records the encoding of features for a single observation.  If we have <span class="math">\(J\)</span> features, then each of these observation vectors will have length <span class="math">\(J\)</span>.</p>
-<p>A linear regression model assigns a weight, <span class="math">\(\theta_j\)</span>, to each feature represented in an observation vector.  The model will predict an output value, <span class="math">\(y\)</span>, as the weighted sum of all the features for a given observation.  We can denote this weighted sum using angle brackets so that</p>
-<div class="math">
-\begin{equation*}
-y = \left&lt; \vec{x}, \vec{\theta} \right&gt; = \sum_{j=1}^J x_j \theta_j.
-\end{equation*}
-</div>
-<p>Using different terminology, this expression defines the hypothesis function: <span class="math">\(h_\theta(\vec{x}) = \left&lt; \vec{x}, \vec{\theta} \right&gt;\)</span>.</p>
-<p>Both <span class="math">\(\vec{x}\)</span> and <span class="math">\(\vec{\theta}\)</span> are <span class="math">\(J\)</span>-dimensional and live in the vector space <span class="math">\(\mathbb{R}^J\)</span>.  The weighted sum shown above is an inner product defined on that vector space.  We can therefore say that the value <span class="math">\(y\)</span> in the prediction model is equal to the <em>scalar projection</em> of the weight vector onto the observation vector.  Training a regression model therefore amounts to finding a weight vector, <span class="math">\(\vec{\theta}\)</span>, such that the projection of that vector onto an observation is approximately equal to the observed output.</p>
+<p>When we consider a numerical data set (as in linear regression), we
+normally are referring to a set of vector observations, say
+<span class="math">\(\vec{x}^{(1)}, \vec{x}^{(2)}, ..., \vec{x}^{(N)}\)</span>. Each of these
+vectors records the encoding of features for a single observation. If we
+have <span class="math">\(J\)</span> features, then each of these observation vectors will have
+length <span class="math">\(J\)</span>.</p>
+<p>A linear regression model assigns a weight, <span class="math">\(\theta_j\)</span>, to each feature
+represented in an observation vector. The model will predict an output
+value, <span class="math">\(y\)</span>, as the weighted sum of all the features for a given
+observation. We can denote this weighted sum using angle brackets so
+that</p>
+<div class="math">$$y = \left&lt; \vec{x}, \vec{\theta} \right&gt; = \sum_{j=1}^J x_j \theta_j.$$</div>
+<p>Using different terminology, this expression defines the hypothesis
+function: <span class="math">\(h_\theta(\vec{x}) = \left&lt; \vec{x}, \vec{\theta} \right&gt;\)</span>.</p>
+<p>Both <span class="math">\(\vec{x}\)</span> and <span class="math">\(\vec{\theta}\)</span> are <span class="math">\(J\)</span>-dimensional and live in the
+vector space <span class="math">\(\mathbb{R}^J\)</span>. The weighted sum shown above is an inner
+product defined on that vector space. We can therefore say that the
+value <span class="math">\(y\)</span> in the prediction model is equal to the <em>scalar projection</em> of
+the weight vector onto the observation vector. Training a regression
+model therefore amounts to finding a weight vector, <span class="math">\(\vec{\theta}\)</span>, such
+that the projection of that vector onto an observation is approximately
+equal to the observed output.</p>
 <p>Thus our training objective is to have</p>
-<div class="math">
-\begin{equation*}
-y^{(i)} \approx \left&lt; \vec{x}^{(i)}, \vec{\theta} \right&gt;
-\end{equation*}
-</div>
+<div class="math">$$y^{(i)} \approx \left&lt; \vec{x}^{(i)}, \vec{\theta} \right&gt;$$</div>
 <p>for <span class="math">\(i=,1,2,...,N\)</span>.</p>
-<p>At this point we can stack all of these approximations into one equation,</p>
-<div class="math">
-\begin{equation*}
-\vec{y}_\text{obs} \approx \vec{y}_\text{pred} = \mathbf{X} \vec{\theta}
-\end{equation*}
-</div>
+<p>At this point we can stack all of these approximations into one
+equation,</p>
+<div class="math">$$\vec{y}_\text{obs} \approx \vec{y}_\text{pred} = \mathbf{X} \vec{\theta}$$</div>
 <p>where</p>
-<ul class="simple">
-<li><span class="math">\(\vec{y}_\text{obs}\)</span> is the vector of observed output values (i.e., target values),</li>
+<ul>
+<li><span class="math">\(\vec{y}_\text{obs}\)</span> is the vector of observed output values (i.e.,
+    target values),</li>
 <li><span class="math">\(\vec{y}_\text{pred}\)</span> is the vector of predictions and</li>
-<li><span class="math">\(\mathbf{X}\)</span> is a matrix whose rows are the observation vectors, <span class="math">\(\vec{x}^{(i)}\)</span>.</li>
+<li><span class="math">\(\mathbf{X}\)</span> is a matrix whose rows are the observation vectors,
+    <span class="math">\(\vec{x}^{(i)}\)</span>.</li>
 </ul>
-</div>
-<div class="section" id="training-the-regressor">
 <h2>Training the Regressor</h2>
-<div class="section" id="interpolation">
 <h3>Interpolation</h3>
-<p>The problem at this point is how to determine the weight vector <span class="math">\(\vec{\theta}\)</span>.  Let's consider this problem from a linear algebraic perspective.  If we write our training objective as a true equation (rather than an approximation) we would want to solve the linear problem</p>
-<div class="math">
-\begin{equation*}
-\mathbf{X}\vec{\theta} = \vec{y}_\text{obs}`
-\end{equation*}
-</div>
+<p>The problem at this point is how to determine the weight vector
+<span class="math">\(\vec{\theta}\)</span>. Let's consider this problem from a linear algebraic
+perspective. If we write our training objective as a true equation
+(rather than an approximation) we would want to solve the linear problem</p>
+<div class="math">$$\mathbf{X}\vec{\theta} = \vec{y}_\text{obs}`$$</div>
 <p>for <span class="math">\(\vec{\theta}\)</span>.</p>
-<p>This problem can only be solved if the number of observations is equal to the number of feature weights, the (rough) intuition being that each observation determines one weight.  If this happens to be the case, then we can determine a unique vector of weights that will <em>exactly</em> reproduce the observed targets for all training observations.  (This is called <em>interpolation</em>.)  It is rare, however, that this will actually be the case, since we typically have many more observations than features.  Moreover, we will typically not <em>want</em> this to be the case because it is likely that a weight vector found in this manner will not generalize well to observations outside of the training set.</p>
-</div>
-<div class="section" id="beyond-inerpolation">
+<p>This problem can only be solved if the number of observations is equal
+to the number of feature weights, the (rough) intuition being that each
+observation determines one weight. If this happens to be the case, then
+we can determine a unique vector of weights that will <em>exactly</em>
+reproduce the observed targets for all training observations. (This is
+called <em>interpolation</em>.) It is rare, however, that this will actually be
+the case, since we typically have many more observations than features.
+Moreover, we will typically not <em>want</em> this to be the case because it is
+likely that a weight vector found in this manner will not generalize
+well to observations outside of the training set.</p>
 <h3>Beyond Inerpolation</h3>
-<p>So let's assume that we have more training observations than features.  This means that our linear system of equations is <em>overdetermined</em>, and it is impossible to find a unique weight vector that exactly reproduces our training observations.  In fact, it is impossible to find <em>any</em> weight vector in a unique way unless we simplify or relax the problem. To begin let's think about the prediction vector.</p>
-<p>The prediction vector, <span class="math">\(\vec{y}_\text{pred}\)</span>, is an <span class="math">\(N\)</span>-dimensional vector, but it actually lives in a smaller <em>subspace</em> of <span class="math">\(\mathbb{R}^N\)</span>.  If we have <span class="math">\(J\)</span> features, then all prediction vectors can be written</p>
-<div class="math">
-\begin{equation*}
-\vec{y}_\text{pred} = \sum_{j=1}^J \theta_j \vec{x}_j,
-\end{equation*}
-</div>
-<p>where <span class="math">\(\vec{x}_j\)</span> is column <span class="math">\(j\)</span> from <span class="math">\(\mathbf{X}\)</span>, which I will call a feature vector because it consists of all observations of a single feature.  This means that the prediction vector <span class="math">\(\vec{y}_\text{pred}\)</span> lives in a <span class="math">\(J\)</span>-dimensional subspace of <span class="math">\(\mathbb{R}^N\)</span> spanned by the <span class="math">\(J\)</span> feature vectors.  Let's call this the prediction subspace.  (This is like only being allowed in the first floor of a tall building.  There are other parts of the &quot;space&quot; that you just can't get to.)  The vector <span class="math">\(\vec{y}_\text{obs}\)</span> of observed values, on the other hand, is not restricted to the prediction subspace and can hang out anywhere in <span class="math">\(\mathbb{R}^N\)</span>.</p>
-<p>This might lead you to argue that if our predictions are restricted to this <span class="math">\(J\)</span>-dimensional prediction subspace, why don't we make our guess as good as possible <em>there</em> and not worry about the rest of the space (i.e., the other <span class="math">\(N-J\)</span> dimensions).  That's a good idea.  In fact, we can make our prediction error <span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span> <em>vanish</em> in the prediction subspace!  What this means is that any error must be completely orthogonal to every prediction vector that we could possibly construct.  We alread noted that that the prediction subspace is spanned by the <span class="math">\(\vec{x}_j\)</span> vectors.  Therefore we need <span class="math">\(\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0\)</span> for <span class="math">\(j=1,2,...,J\)</span>.  Well, this is equivalent to writing</p>
-<div class="math">
-\begin{equation*}
-\mathbf{X}^T \vec{e} = \vec{0}.
-\end{equation*}
-</div>
+<p>So let's assume that we have more training observations than features.
+This means that our linear system of equations is <em>overdetermined</em>, and
+it is impossible to find a unique weight vector that exactly reproduces
+our training observations. In fact, it is impossible to find <em>any</em>
+weight vector in a unique way unless we simplify or relax the problem.
+To begin let's think about the prediction vector.</p>
+<p>The prediction vector, <span class="math">\(\vec{y}_\text{pred}\)</span>, is an <span class="math">\(N\)</span>-dimensional
+vector, but it actually lives in a smaller <em>subspace</em> of <span class="math">\(\mathbb{R}^N\)</span>.
+If we have <span class="math">\(J\)</span> features, then all prediction vectors can be written</p>
+<div class="math">$$\vec{y}_\text{pred} = \sum_{j=1}^J \theta_j \vec{x}_j,$$</div>
+<p>where <span class="math">\(\vec{x}_j\)</span> is column <span class="math">\(j\)</span> from <span class="math">\(\mathbf{X}\)</span>, which I will call a
+feature vector because it consists of all observations of a single
+feature. This means that the prediction vector <span class="math">\(\vec{y}_\text{pred}\)</span>
+lives in a <span class="math">\(J\)</span>-dimensional subspace of <span class="math">\(\mathbb{R}^N\)</span> spanned by the <span class="math">\(J\)</span>
+feature vectors. Let's call this the prediction subspace. (This is like
+only being allowed in the first floor of a tall building. There are
+other parts of the "space" that you just can't get to.) The vector
+<span class="math">\(\vec{y}_\text{obs}\)</span> of observed values, on the other hand, is not
+restricted to the prediction subspace and can hang out anywhere in
+<span class="math">\(\mathbb{R}^N\)</span>.</p>
+<p>This might lead you to argue that if our predictions are restricted to
+this <span class="math">\(J\)</span>-dimensional prediction subspace, why don't we make our guess as
+good as possible <em>there</em> and not worry about the rest of the space
+(i.e., the other <span class="math">\(N-J\)</span> dimensions). That's a good idea. In fact, we can
+make our prediction error
+<span class="math">\(\vec{e} = \vec{y}_\text{pred} - \vec{y}_\text{obs}\)</span> <em>vanish</em> in the
+prediction subspace! What this means is that any error must be
+completely orthogonal to every prediction vector that we could possibly
+construct. We alread noted that that the prediction subspace is spanned
+by the <span class="math">\(\vec{x}_j\)</span> vectors. Therefore we need
+<span class="math">\(\left&lt; \vec{x}_j, \vec{e} \right&gt; = 0\)</span> for <span class="math">\(j=1,2,...,J\)</span>. Well, this is
+equivalent to writing</p>
+<div class="math">$$\mathbf{X}^T \vec{e} = \vec{0}.$$</div>
 <p>In fact, after a few substitutions this equation becomes</p>
-<div class="math">
-\begin{equation*}
-\mathbf{X}^T \mathbf{X} \vec{\theta} = \mathbf{X}^T \vec{y}_\text{obs}.
-\end{equation*}
-</div>
-<p>This is called the &quot;normal equation.&quot;  We have effectively projected our entire problem down onto the <span class="math">\(J\)</span>-dimensional prediction supspace of <span class="math">\(\mathbb{R}^N\)</span>.  This means that we have a <span class="math">\(J\)</span>-dimensional unknown weight vector and <span class="math">\(J\)</span> equations constraining the error to the prediction subspace.  The result?  A uniquely solvable problem!</p>
-<div class="math">
-\begin{equation*}
-\vec{\theta} = \left( \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T \vec{y}_\text{obs}.
-\end{equation*}
-</div>
+<div class="math">$$\mathbf{X}^T \mathbf{X} \vec{\theta} = \mathbf{X}^T \vec{y}_\text{obs}.$$</div>
+<p>This is called the "normal equation." We have effectively projected our
+entire problem down onto the <span class="math">\(J\)</span>-dimensional prediction supspace of
+<span class="math">\(\mathbb{R}^N\)</span>. This means that we have a <span class="math">\(J\)</span>-dimensional unknown weight
+vector and <span class="math">\(J\)</span> equations constraining the error to the prediction
+subspace. The result? A uniquely solvable problem!</p>
+<div class="math">$$\vec{\theta} = \left( \mathbf{X}^T \mathbf{X} \right)^{-1} \mathbf{X}^T \vec{y}_\text{obs}.$$</div>
 <p>Model trained.</p>
-</div>
-</div>
-<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
     var align = "center",
         indent = "0em",
         linebreak = "false";
